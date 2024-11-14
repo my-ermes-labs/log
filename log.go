@@ -1,55 +1,51 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
-	"os"
-	"path/filepath"
-	"time"
+	"io/ioutil"
+	"net/http"
 )
 
-type Logger struct {
-	filePath string
-}
+func sendRequestToAxumServer(bodyContent string) (string, error) {
+	url := "http://192.168.64.1:3000/"
 
-// NewLogger creates a new logger with the specified directory and filename
-func NewLogger(directory, filename string) (*Logger, error) {
-	// Creates the directory if it doesn't exist
-	if err := os.MkdirAll(directory, os.ModePerm); err != nil {
-		return nil, fmt.Errorf("error creating directory: %w", err)
-	}
+	requestBody := bytes.NewBufferString(bodyContent)
 
-	// Constructs the full file path
-	filePath := filepath.Join(directory, filename)
-
-	// Creates the log file (overwrites if it already exists)
-	file, err := os.Create(filePath)
+	req, err := http.NewRequest("POST", url, requestBody)
 	if err != nil {
-		return nil, fmt.Errorf("error creating log file: %w", err)
+		return "", fmt.Errorf("error while creating the request: %v", err)
 	}
-	defer file.Close()
 
-	fmt.Println("Log file created:", filePath)
-	return &Logger{filePath: filePath}, nil
-}
+	// Imposta l'header Content-Type per indicare che stiamo inviando testo semplice
+	req.Header.Set("Content-Type", "text/plain")
 
-// AppendLog adds a new message to the log file with a timestamp
-func (l *Logger) AppendLog(message string) error {
-	// Opens the log file in append mode
-	file, err := os.OpenFile(l.filePath, os.O_APPEND|os.O_WRONLY, 0644)
+	// Invia la richiesta con un client HTTP
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error opening log file: %w", err)
+		return "", fmt.Errorf("error while sending the request: %v", err)
 	}
-	defer file.Close()
+	defer resp.Body.Close()
 
-	// Creates the log entry string with a timestamp
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	logEntry := fmt.Sprintf("%s - %s\n", timestamp, message)
-
-	// Writes the log entry to the file
-	if _, err := file.WriteString(logEntry); err != nil {
-		return fmt.Errorf("error writing to log file: %w", err)
+	// Legge la risposta del server
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error while reading the response: %v", err)
 	}
 
-	fmt.Println("Log added:", logEntry)
-	return nil
+	return string(responseBody), nil
 }
+
+// func main() {
+// 	// Contenuto del body che vuoi inviare
+// 	bodyContent := "Ciao, questo è il contenuto della richiesta!"
+
+// 	// Invia la richiesta al server Axum
+// 	response, err := sendRequestToAxumServer(bodyContent)
+// 	if err != nil {
+// 		fmt.Println("Errore:", err)
+// 	} else {
+// 		fmt.Println("Risposta del server:", response)
+// 	}
+// }
