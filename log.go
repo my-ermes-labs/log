@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func sendRequestToAxumServer(bodyContent string) (string, error) {
+func my_log(bodyContent string) (string, error) {
 	url := "http://192.168.64.1:3000/"
 
 	requestBody := bytes.NewBufferString(bodyContent)
@@ -36,16 +36,3 @@ func sendRequestToAxumServer(bodyContent string) (string, error) {
 
 	return string(responseBody), nil
 }
-
-// func main() {
-// 	// Contenuto del body che vuoi inviare
-// 	bodyContent := "Ciao, questo è il contenuto della richiesta!"
-
-// 	// Invia la richiesta al server Axum
-// 	response, err := sendRequestToAxumServer(bodyContent)
-// 	if err != nil {
-// 		fmt.Println("Errore:", err)
-// 	} else {
-// 		fmt.Println("Risposta del server:", response)
-// 	}
-// }
