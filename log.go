@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func my_log(bodyContent string) (string, error) {
+func MyLog(bodyContent string) (string, error) {
 	url := "http://192.168.64.1:3000/"
 
 	requestBody := bytes.NewBufferString(bodyContent)
