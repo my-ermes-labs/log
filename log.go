@@ -3,36 +3,34 @@ package log
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
 )
 
-func MyLog(bodyContent string) (string, error) {
-	url := "http://192.168.64.1:3000/"
+func MyLog(data string) {
+	// URL del server Axum (modifica l'indirizzo IP della tua macchina virtuale)
+	url := "http://10.168.89.115:3000/" // Modifica l'IP e il percorso in base al tuo caso
 
-	requestBody := bytes.NewBufferString(bodyContent)
+	// Corpo della richiesta (puoi inviare la stringa come JSON o come corpo di una richiesta normale)
+	body := []byte(data) // Convertiamo la stringa in un array di byte
 
-	req, err := http.NewRequest("POST", url, requestBody)
+	// Creiamo una richiesta POST
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
-		return "", fmt.Errorf("error while creating the request: %v", err)
+		log.Fatal(err)
 	}
 
-	// Imposta l'header Content-Type per indicare che stiamo inviando testo semplice
+	// Impostiamo l'header Content-Type
 	req.Header.Set("Content-Type", "text/plain")
 
-	// Invia la richiesta con un client HTTP
+	// Inviamo la richiesta
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("error while sending the request: %v", err)
+		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
-	// Legge la risposta del server
-	responseBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("error while reading the response: %v", err)
-	}
-
-	return string(responseBody), nil
+	// Stampiamo il codice di stato della risposta
+	fmt.Println("Response Status:", resp.Status)
 }
