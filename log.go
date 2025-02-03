@@ -7,10 +7,10 @@ import (
 	"net/http"
 )
 
-func MyLog(data string) {
+func MyLog(node string, data string) {
 	url := "http://192.168.64.1:3000/"
 
-	body := []byte(data)
+	body := []byte(node + ": " + data)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
